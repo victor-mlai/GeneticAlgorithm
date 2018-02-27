@@ -36,24 +36,22 @@ public:
 		}
 	}
 
+	int getFitness() const { return Fitness; }
+
 	void setFitness(int newFitness) {
 		Fitness = newFitness;
-	}
-
-	void setGene(int index, int value) {
-		DNA[index] = value;
 	}
 
 	vector<int> DNA;
 	int Fitness;
 };
 
-class Population
+class GeneticAlg
 {
 public:
-	Population();
-	Population(int pop_size, int DNA_size, Problem* p);	// generate a random population
-	~Population();
+	GeneticAlg();
+	GeneticAlg(int pop_size, int nr_tries, int err, int DNA_size, Problem* p);	// generate a random population
+	~GeneticAlg();
 
 	bool Run();
 	int getNr() const { return nr; }
@@ -62,20 +60,27 @@ public:
 private:
 	void Evaluate();
 	void Select();	// proportional roulette wheel selection
-	void Crossover();	// uniform random cross-over of 2 chromosomes
-	void Mutate();		// uniform mutation: replacing a chromosome gene by a new one
+	void Crossover();
+	void XO(Member * p1, Member * p2, Member * c);
+	void Mutate_Pop();
+
+	// uniform random cross-over of 2 chromosomes
+	void Mutate_Gene(Member * m, int gene_index);
 
 	Problem* probl;	// problem
 	vector<Member*> pop;	// population members
+
 	vector<Member*> elite_pop;	// elite members
 	vector<Member*> crOv_pop;	// cross-over-ed members
 
 private:
-	int MutationRate;
+	int MutationRate;	// how often we mutate: if set to 25 means we mutate a Gene with a 25% chance
 	int elite_Size;
 	int DNA_size;
 
+	int error_offset;	// how much the new solution should differ from the previous one to be counted as different (used in Evaluate())
 	int nr; // nr of times I got the loc_max Fitness
+	int nr_tries;	// number of times it tries to come with a better solution
 	int loc_max;	// the maximum fitness reached so far
 	Member* elite_member;	// current best member from pop vector
 };

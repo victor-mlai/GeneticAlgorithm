@@ -47,7 +47,7 @@ GeneticAlg::GeneticAlg(int pop_size, int nr_tries, int err, int DNA_size, Proble
 bool GeneticAlg::Run()
 {
 	Evaluate();
-	if (nr > nr_tries)	// if I got the same result 3 times, we stop
+	if (nr > nr_tries)	// if I got a similar result nr_tries times, stop
 		return false;
 
 	Select();
@@ -140,15 +140,15 @@ void GeneticAlg::Select()
 // random cross-over of 2 chromosomes
 void GeneticAlg::Crossover()
 {
-	for (int i = 0; i < crOv_pop.size(); i++) {
+	for (Member* m : crOv_pop) {
 		// choosing randomly 2 chromosomes from elite population
 		int half_elite_size = elite_pop.size() / 2;
 		int idx1 = rand() % half_elite_size;	// selecting from first half
 		int idx2 = rand() % half_elite_size + half_elite_size;	// selecting from 2nd half
 
 		do {
-			XO(elite_pop[idx1], elite_pop[idx2], crOv_pop[i]);
-		} while (!probl->constraints(crOv_pop[i]->DNA));
+			XO(elite_pop[idx1], elite_pop[idx2], m);
+		} while (!probl->constraints(m->DNA));
 	}
 }
 
@@ -157,14 +157,14 @@ void GeneticAlg::Mutate_Pop()
 {
 	int crOv_size = crOv_pop.size();
 	int DNA_size = crOv_pop[0]->DNA.size();
-	for (int i = 0; i < crOv_size; i++) {
+	for (Member* m : crOv_pop) {
 		do {
 			for (int j = 0; j < DNA_size; ++j) {
 				if (rand() % 100 <= MutationRate) {
-					Mutate_Gene(crOv_pop[i], j);
+					Mutate_Gene(m, j);
 				}
 			}
-		} while (!probl->constraints(crOv_pop[i]->DNA));
+		} while (!probl->constraints(m->DNA));
 	}
 }
 

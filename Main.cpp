@@ -12,7 +12,7 @@ struct obj {
 };
 class Knapsack : public Problem {
 public:
-	int maxWeight = 10;
+	int maxWeight = 50;
 	vector<obj> objects = {
 		//{weight, value}
 		{ 15, 15 },
@@ -20,13 +20,13 @@ public:
 		{ 2, 10 },
 		{ 5, 5 },
 		{ 9, 8 },
-		{ 20, 17 }
-		/*{ 13, 14 },
+		{ 20, 17 },
+		{ 13, 14 },
 		{ 4, 12 },
 		{ 7, 11 },
 		{ 1, 2 },
 		{ 25, 30 },
-		{ 14, 16 }*/
+		{ 14, 16 }
 	};
 
 	// the weight of all objects can't be greater than the capacity of the knapsack
@@ -56,7 +56,7 @@ public:
 
 struct cell {
 	int value = 0;
-	vector<int> objects;
+	vector<int> objects = vector<int>(12);
 };
 
 cell* knapSack(int W, vector<obj> & objects, int n)
@@ -72,18 +72,14 @@ cell* knapSack(int W, vector<obj> & objects, int n)
 				if (newVal > d[i - 1][w].value) {
 					d[i][w].value = newVal;
 					d[i][w].objects = d[i - 1][w - objects[i - 1].weight].objects;
-					d[i][w].objects.push_back(1);
+					d[i][w].objects[i-1] = 1;
 				}
 				else {
-					d[i][w].value = d[i - 1][w].value;
-					d[i][w].objects = d[i - 1][w].objects;
-					d[i][w].objects.push_back(0);
+					d[i][w] = d[i - 1][w];
 				}
-				//d[i][w].value = max(objects[i - 1].value + d[i - 1][w - objects[i - 1].weight].value, d[i - 1][w].value);
 			}
 			else {
 				d[i][w] = d[i - 1][w];
-				d[i][w].objects.push_back(0);
 			}
 		}
 	}
@@ -100,7 +96,7 @@ int main() {
 	
 	// -------------------------------------------------------
 	// Genetic Algorithm
-	int pop_size = 5;
+	int pop_size = 100;
 	int nr_tries = 1000 / pop_size;	// number of times it tries to come with a better solution
 	int error_offset = 1;	// how much the new solution should differ from the previous one to be counted as different (used in Evaluate())
 	GeneticAlg gAlg(pop_size, nr_tries, error_offset, k->objects.size(), k);
@@ -108,18 +104,20 @@ int main() {
 		cout << "Generation: " << Generation << " has best member with Fitness: " << gAlg.getSolution()->Fitness << endl;
 	}
 
-	Member* solution = gAlg.getSolution();
-	cout << "Solution with Genetic Algorithm: " << solution->Fitness << endl;
-	for (int Gene : solution->DNA)
+	Member* GAsolution = gAlg.getSolution();
+	cout << "Solution with Genetic Algorithm: " << GAsolution->Fitness << endl;
+	for (int Gene : GAsolution->DNA)
 		cout << Gene << " ";
 
 	cell* DPsolution = knapSack(k->maxWeight, k->objects, k->objects.size());
 	cout << "\n\nSolution with Dynamic Programming: " << DPsolution->value << endl;
-	for (int gene : DPsolution->objects)
-		cout << gene << " ";
+	for (int Gene : DPsolution->objects)
+		cout << Gene << " ";
 	cout << "\n\n";
 
+
 	system("pause");
+	delete DPsolution;
 	delete k;
 	return 0;
 }

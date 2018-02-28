@@ -38,7 +38,7 @@ GeneticAlg::GeneticAlg(int pop_size, int nr_tries, int err, int DNA_size, Proble
 	}
 
 	//error_offset = 0;
-	MutationRate = ceil(100.0f / DNA_size);
+	MutationRate = ceil(50 / DNA_size);
 	nr = 0;
 	loc_max = 0;
 	elite_member = new Member(DNA_size);
@@ -65,17 +65,13 @@ void GeneticAlg::Evaluate()
 	Member* max_m = NULL;
 
 	for (Member* m : pop) {
-		//if (probl->constraints(m->DNA)) {
-			int fit = probl->getFitness(m->DNA);
-			m->setFitness(fit);
+		int fit = probl->getFitness(m->DNA);
+		m->setFitness(fit);
 
-			if (max_f < fit) {
-				max_m = m;
-				max_f = fit;
-			}
-		//}
-		//else
-		//	m->setFitness(0);
+		if (max_f < fit) {
+			max_m = m;
+			max_f = fit;
+		}
 	}
 
 	if (loc_max < max_f - error_offset) {

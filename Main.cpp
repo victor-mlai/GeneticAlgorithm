@@ -56,14 +56,14 @@ public:
 
 struct cell {
 	int value = 0;
-	vector<int> objects = vector<int>(12);
+	vector<int> objects = vector<int>(30);
 };
 
 cell* knapSack(int W, vector<obj> & objects, int n)
 {
 	int i, w;
-	cell d[13][51];
-	auto max = [](int a, int b) { return a > b ? a : b; };
+	cell d[30][200];
+	//auto max = [](int a, int b) { return a > b ? a : b; };
 
 	for (i = 1; i <= n; i++) {
 		for (w = 1; w <= W; w++) {
@@ -72,7 +72,7 @@ cell* knapSack(int W, vector<obj> & objects, int n)
 				if (newVal > d[i - 1][w].value) {
 					d[i][w].value = newVal;
 					d[i][w].objects = d[i - 1][w - objects[i - 1].weight].objects;
-					d[i][w].objects[i-1] = 1;
+					d[i][w].objects[i - 1] = 1;
 				}
 				else {
 					d[i][w] = d[i - 1][w];
@@ -97,11 +97,16 @@ int main() {
 	// -------------------------------------------------------
 	// Genetic Algorithm
 	int pop_size = 100;
-	int nr_tries = 1000 / pop_size;	// number of times it tries to come with a better solution
-	int error_offset = 1;	// how much the new solution should differ from the previous one to be counted as different (used in Evaluate())
+	int nr_tries = 5000 / pop_size;	// number of times it tries to come with a better solution
+	int error_offset = 0;	// how much the new solution should differ from the previous one to be counted as different (used in Evaluate())
 	GeneticAlg gAlg(pop_size, nr_tries, error_offset, k->objects.size(), k);
+	int oldSol = 0;
 	for (int Generation = 1; gAlg.Run(); Generation++) {
-		cout << "Generation: " << Generation << " has best member with Fitness: " << gAlg.getSolution()->Fitness << endl;
+		int newSol = gAlg.getSolution()->Fitness;
+		if (newSol > oldSol) {
+			cout << "Generation: " << Generation << " has best member with Fitness: " << newSol << endl;
+			oldSol = newSol;
+		}
 	}
 
 	Member* GAsolution = gAlg.getSolution();
@@ -111,8 +116,8 @@ int main() {
 
 	cell* DPsolution = knapSack(k->maxWeight, k->objects, k->objects.size());
 	cout << "\n\nSolution with Dynamic Programming: " << DPsolution->value << endl;
-	for (int Gene : DPsolution->objects)
-		cout << Gene << " ";
+	for (int i = 0; i < k->objects.size(); i++)
+		cout << DPsolution->objects[i] << " ";
 	cout << "\n\n";
 
 

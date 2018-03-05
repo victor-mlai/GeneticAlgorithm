@@ -10,6 +10,7 @@ struct obj {
 	int weight;
 	int value;
 };
+
 class Knapsack : public Problem {
 public:
 	int maxWeight = 50;
@@ -48,12 +49,10 @@ public:
 
 		return fitness;
 	};
-
-	float getRandGene() {
-		return rand() % 2;
-	}
 };
 
+// Calculating the solution with Dynamic Programming
+// ------------------------------------------------------------
 struct cell {
 	int value = 0;
 	vector<int> objects = vector<int>(30);
@@ -87,9 +86,10 @@ cell* knapSack(int W, vector<obj> & objects, int n)
 	cell* solution = new cell(d[n][W]);
 	return solution;
 }
+// ------------------------------------------------------------
 
 int main() {
-	srand(time(0));
+	srand((unsigned int)time(NULL));
 
 	// Knapsack problem
 	Knapsack* k = new Knapsack();
@@ -97,9 +97,11 @@ int main() {
 	// -------------------------------------------------------
 	// Genetic Algorithm
 	int pop_size = 100;
-	int nr_tries = 5000 / pop_size;	// number of times it tries to come with a better solution
+	int nr_tries = 5000 / pop_size;	// number of times it tries to come up with a better solution
 	int error_offset = 0;	// how much the new solution should differ from the previous one to be counted as different (used in Evaluate())
 	GeneticAlg gAlg(pop_size, nr_tries, error_offset, k->objects.size(), k);
+
+	// for each generation, print the Fitness only if it got better
 	int oldSol = 0;
 	for (int Generation = 1; gAlg.Run(); Generation++) {
 		int newSol = gAlg.getSolution()->Fitness;
@@ -109,14 +111,16 @@ int main() {
 		}
 	}
 
+	// print solution with Genetic Algorithm
 	Member* GAsolution = gAlg.getSolution();
 	cout << "Solution with Genetic Algorithm: " << GAsolution->Fitness << endl;
 	for (int Gene : GAsolution->DNA)
 		cout << Gene << " ";
 
+	// print solution with Dynamic Programming
 	cell* DPsolution = knapSack(k->maxWeight, k->objects, k->objects.size());
 	cout << "\n\nSolution with Dynamic Programming: " << DPsolution->value << endl;
-	for (int i = 0; i < k->objects.size(); i++)
+	for (int i = 0; i < (int)k->objects.size(); i++)
 		cout << DPsolution->objects[i] << " ";
 	cout << "\n\n";
 

@@ -7,7 +7,7 @@ GeneticAlg::GeneticAlg()
 
 GeneticAlg::~GeneticAlg()
 {
-	for (int i = 0; i < pop.size(); i++) {
+	for (int i = 0; i < (int)pop.size(); i++) {
 		delete crOv_pop[i];
 		delete pop[i];
 	}
@@ -24,12 +24,12 @@ GeneticAlg::GeneticAlg(int pop_size, int nr_tries, int err, int DNA_size, Proble
 	for (int i = 0; i < pop_size; i++) {
 		pop[i] = new Member(DNA_size);
 		do {
-			pop[i]->randomize_DNA(p);	// randomize until the constraint is respected
+			pop[i]->randomize_DNA();	// randomize until the constraint is respected
 		} while (!probl->constraints(pop[i]->DNA));
 	}
 
 	auto max = [](int a, int b) { return a > b ? a : b; };
-	elite_Size = max(ceil(pop_size / 10), 2);	// the elite population should have at least 2 members
+	elite_Size = max((int)ceil(pop_size / 10), 2);	// the elite population should have at least 2 members
 	elite_pop.resize(elite_Size);
 
 	crOv_pop.resize(pop_size);
@@ -38,7 +38,7 @@ GeneticAlg::GeneticAlg(int pop_size, int nr_tries, int err, int DNA_size, Proble
 	}
 
 	//error_offset = 0;
-	MutationRate = ceil(50 / DNA_size);
+	MutationRate = (int)ceil(50 / DNA_size);
 	nr = 0;
 	loc_max = 0;
 	elite_member = new Member(DNA_size);
@@ -110,32 +110,32 @@ void GeneticAlg::Select()
 }
 
 // tournament selection
-//void GeneticAlg::Select()
-//{
-//	int popsize = pop.size();
-//	int tntsize = 2 * elite_Size;
-//
-//	// selecting mating population
-//	for (int i = 0; i < elite_Size; ++i) {
-//		// selecting randomly a first element
-//		int bestIdx = rand() % popsize;
-//		int bestFit = pop[bestIdx]->getFitness();
-//
-//		// starting tournament
-//		for (int j = 1; j < tntsize; ++j) {
-//			int idx = rand() % popsize;
-//			int fit = pop[idx]->getFitness();
-//
-//			if (fit > bestFit) {
-//				bestFit = fit;
-//				bestIdx = idx;
-//			}
-//		}
-//
-//		// selecting element
-//		elite_pop[i] = pop[bestIdx];
-//	}
-//}
+/*void GeneticAlg::Select()
+{
+	int popsize = pop.size();
+	int tntsize = 2 * elite_Size;
+
+	// selecting mating population
+	for (int i = 0; i < elite_Size; ++i) {
+		// selecting randomly a first element
+		int bestIdx = rand() % popsize;
+		int bestFit = pop[bestIdx]->getFitness();
+
+		// starting tournament
+		for (int j = 1; j < tntsize; ++j) {
+			int idx = rand() % popsize;
+			int fit = pop[idx]->getFitness();
+
+			if (fit > bestFit) {
+				bestFit = fit;
+				bestIdx = idx;
+			}
+		}
+
+		// selecting element
+		elite_pop[i] = pop[bestIdx];
+	}
+}*/
 
 // random cross-over of 2 chromosomes
 void GeneticAlg::Crossover()
@@ -155,7 +155,6 @@ void GeneticAlg::Crossover()
 // uniform mutation
 void GeneticAlg::Mutate_Pop()
 {
-	int crOv_size = crOv_pop.size();
 	int DNA_size = crOv_pop[0]->DNA.size();
 	for (Member* m : crOv_pop) {
 		do {
